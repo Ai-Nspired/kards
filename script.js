@@ -80,56 +80,64 @@ class App {
     }
 
     bindEvents() {
-        const sendBtn = document.getElementById('sendBtn');
-        sendBtn.addEventListener('click', () => this.handleSendClick());
-        
-        const input = document.getElementById('userInput');
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.handleSendClick();
-            }
-        });
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.addEventListener('click', () => this.handleSendClick());
 
-        document.getElementById('menuFab').addEventListener('click', () => this.openModal('settingsModal'));
-        document.getElementById('viewFab').addEventListener('click', () => this.cycleView());
-        document.getElementById('undoFabTop').addEventListener('click', () => this.undo());
+    const input = document.getElementById('userInput');
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            this.handleSendClick();
+        }
+    });
 
-        document.getElementById('cancelSelect').addEventListener('click', () => this.clearSelection());
-        document.getElementById('mergeSelected').addEventListener('click', () => this.promptAction('merge'));
-        document.getElementById('deleteSelected').addEventListener('click', () => this.bulkDelete());
-        document.getElementById('splitSelected').addEventListener('click', () => this.promptAction('split'));
+    document.getElementById('menuFab').addEventListener('click', () => this.openModal('settingsModal'));
+    document.getElementById('viewFab').addEventListener('click', () => this.cycleView());
+    document.getElementById('undoFabTop').addEventListener('click', () => this.undo());
 
-        document.getElementById('cardMenu').addEventListener('click', (e) => {
+    document.getElementById('cancelSelect').addEventListener('click', () => this.clearSelection());
+    document.getElementById('mergeSelected').addEventListener('click', () => this.promptAction('merge'));
+    document.getElementById('deleteSelected').addEventListener('click', () => this.bulkDelete());
+    document.getElementById('splitSelected').addEventListener('click', () => this.promptAction('split'));
+
+    const cardMenu = document.getElementById('cardMenu');
+    if (cardMenu) {
+        cardMenu.addEventListener('click', (e) => {
             const btn = e.target.closest('.menu-item');
             if (btn && this.contextMenuTargetId) {
                 const action = btn.dataset.action;
-                if (action === 'undo') {
-                    this.undo();
-                } else {
-                    this.handleCardAction(action, this.contextMenuTargetId);
-                }
-                this.closeCardMenu();
-            }
-        });
-
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    const id = overlay.id;
-                    this.closeModal(id);
-                }
-            });
-        });
-
-        document.getElementById('promptConfirmBtn').addEventListener('click', () => this.executePromptAction());
-
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('#cardMenu') && !e.target.closest('.card-actions') && !e.target.closest('.flip-card')) {
+                if (action === 'undo') this.undo();
+                else this.handleCardAction(action, this.contextMenuTargetId);
                 this.closeCardMenu();
             }
         });
     }
+
+    document.querySelectorAll('.modal-overlay').forEach((overlay) => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target !== overlay) return;
+            ['settingsModal','promptModal','styleModal','aiThemeModal','textEditorModal','fullscreenOverlay'].forEach((id) => {
+                const m = document.getElementById(id);
+                if (m) m.classList.remove('active');
+            });
+            this.closeCardMenu();
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        const menu = document.getElementById('cardMenu');
+        const isMenu = e.target.closest('#cardMenu');
+        const isTrigger = e.target.closest('.card-actions');
+        const isFlip = e.target.closest('.flip-card');
+        if (!isMenu && !isTrigger && !isFlip) this.closeCardMenu();
+    });
+
+    document.addEventListener('contextmenu', (e) => {
+        const card = e.target.closest('.flip-card');
+        if (!card) return;
+        if (this.contextMenuTargetId) e.preventDefault();
+    });
+}
 
     saveState() {
         const data = {
