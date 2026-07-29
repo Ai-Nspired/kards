@@ -1,4 +1,4 @@
-const DEFAULT_PROXY_URL = "https://ai-proxy.ai-n.workers.dev/api/generate";
+const DEFAULT_PROXY_URL = "https://ai.nspired.cc/chat";
 const STORAGE_KEY = "ai_ndraft_data_v2";
 
 const SYSTEM_PROMPT = `You are a helpful, casual AI assistant. You can control styling and app behavior.
