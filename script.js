@@ -689,10 +689,12 @@ openCardMenu(id, e) {
     menu.style.top = `${y}px`;
   },
 
-    closeCardMenu() {
-        document.getElementById('cardMenu').classList.remove('active');
-        this.contextMenuTargetId = null;
-    }
+    // 2) closeCardMenu() — clean deactivation
+closeCardMenu() {
+    const menu = document.getElementById('cardMenu');
+    if (menu) menu.classList.remove('active');
+    this.contextMenuTargetId = null;
+},
 
     handleCardAction(action, id) {
         const card = this.cards.find(c => c.id === id);
