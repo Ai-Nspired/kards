@@ -451,39 +451,12 @@ class App {
 
             if (!res.ok) throw new Error(`Proxy Error: ${res.status}`);
 
-            const reader = res.body.getReader();
-            let buffer = '';
-            let accumulated = '';
-            let isFirstChunk = true;
+            const data = await res.json();
+            const accumulated = data.response || '';
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                buffer += this.decoder.decode(value, { stream: true });
-                
-                const lines = buffer.split('\n\n');
-                buffer = lines.pop() || '';
-                for (const line of lines) {
-                    const jsonStr = line.replace('data: ', '').trim();
-                    if (!jsonStr || jsonStr === '[DONE]') continue;
-                    try {
-                        const json = JSON.parse(jsonStr);
-                        const chunk = json.choices?.[0]?.delta?.content;
-                        if (chunk) {
-                            accumulated += chunk;
-                            // Always call updateStreamingContent, it handles the logic
-                            if (isFirstChunk) {
-                                this.updateStreamingContent(accumulated, true);
-                                isFirstChunk = false;
-                            } else {
-                                this.updateStreamingContent(accumulated, false);
-                            }
-                        }
-                    } catch {}
-                }
-            }
-
+            this.updateStreamingContent(accumulated, true);
             this.finalizeResponse(accumulated);
+
 
         } catch (err) {
             if (err.name === 'AbortError') {
