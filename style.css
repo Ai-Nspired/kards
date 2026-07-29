@@ -178,7 +178,8 @@ body.view-full #grid .flip-card { height: 100vh; border-radius: 0; border: none;
 @keyframes pulse-btn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
 .view-fab-container { position: fixed; bottom: 80px; right: 12px; z-index: 90; }
-
+#cardMenu { display: none; position: fixed; z-index: 100; }
+#cardMenu.active { display: block; }
 #cardMenu {
     position: fixed; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
     padding: 6px; display: none; flex-direction: column; gap: 2px; z-index: 2000;
