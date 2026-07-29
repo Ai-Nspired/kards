@@ -193,7 +193,7 @@ class App {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `ai_ncards_export_${Date.now()}.json`;
+        a.download = `kards_export_${Date.now()}.json`;
         a.click();
         this.showToast("Export downloaded");
     }
