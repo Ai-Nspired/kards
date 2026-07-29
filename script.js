@@ -984,25 +984,19 @@ Do not output any other text.`;
             body: JSON.stringify({ prompt: prompt })
         })
         .then(res => {
-            const reader = res.body.getReader();
-            let fullText = "";
-            const processChunk = () => {
-                return reader.read().then(({done, value}) => {
-                    if (done) {
-                        const { themeUpdate } = this.parseCommands(fullText);
-                        if (themeUpdate) {
-                            this.theme = { ...this.theme, ...themeUpdate };
-                            this.applyTheme();
-                            this.saveState();
-                            this.showToast(`Theme: ${themeUpdate.name}`);
-                        } else {
-                            this.showToast("Theme generation failed (parse error)");
-                        }
-                        return;
-                    }
-                    const text = this.decoder.decode(value, { stream: true });
-                    fullText += text;
-                    return processChunk();
+        .then(res => res.json())
+        .then(data => {
+            const fullText = data.response || '';
+            const { themeUpdate } = this.parseCommands(fullText);
+            if (themeUpdate) {
+                this.theme = { ...this.theme, ...themeUpdate };
+                this.applyTheme();
+                this.saveState();
+                this.showToast(`Theme: ${themeUpdate.name}`);
+            } else {
+                this.showToast("Theme generation failed (parse error)");
+            }
+        })
                 });
             };
             return processChunk();
