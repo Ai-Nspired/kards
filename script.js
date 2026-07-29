@@ -20,7 +20,7 @@ class App {
         this.history = []; 
         this.sessionId = "sess_" + Date.now();
         this.theme = {
-            name: 'ai-Ncards',
+            name: 'cards',
             primary: '#c41e3a',
             bg: '#121212',
             cardBg: '#1e1e1e',
@@ -644,39 +644,50 @@ class App {
         }
     }
 
-    openCardMenu(id, e) {
-        if (e && e.preventDefault) e.preventDefault();
-        if (e && e.stopPropagation) e.stopPropagation();
-        
-        this.contextMenuTargetId = id;
-        const menu = document.getElementById('cardMenu');
-        
-        let x, y;
-        if (e && e.clientX) {
-            x = e.clientX;
-            y = e.clientY;
-        } else if (e && e.touches && e.touches[0]) {
-            x = e.touches[0].clientX;
-            y = e.touches[0].clientY;
+    // 1) openCardMenu(id, e) — consistent positioning and active handling
+openCardMenu(id, e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
+
+    this.contextMenuTargetId = id;
+    const menu = document.getElementById('cardMenu');
+    if (!menu) return;
+
+    let x, y;
+    if (e && typeof e.clientX === 'number') {
+        x = e.clientX;
+        y = e.clientY;
+    } else if (e && e.touches && e.touches[0]) {
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+    } else {
+        const el = document.querySelector(`.flip-card[data-id="${id}"]`);
+        if (el) {
+            const rect = el.getBoundingClientRect();
+            x = rect.left + rect.width / 2;
+            y = rect.top + rect.height / 2;
         } else {
-            const el = document.querySelector(`.flip-card[data-id="${id}"]`);
-            if (el) {
-                const rect = el.getBoundingClientRect();
-                x = rect.left + rect.width / 2;
-                y = rect.top + rect.height / 2;
-            } else {
-                x = window.innerWidth / 2;
-                y = window.innerHeight / 2;
-            }
+            x = window.innerWidth / 2;
+            y = window.innerHeight / 2;
         }
-
-        if (x + 200 > window.innerWidth) x = window.innerWidth - 210;
-        if (y + 300 > window.innerHeight) y = window.innerHeight - 310;
-
-        menu.style.left = `${x}px`;
-        menu.style.top = `${y}px`;
-        menu.classList.add('active');
     }
+
+    // Ensure menu is visible before measuring
+    menu.classList.add('active');
+    const pad = 10;
+
+    let menuWidth = menu.offsetWidth || 200;
+    let menuHeight = menu.offsetHeight || 120;
+
+    // Keep menu inside viewport
+    if (x + menuWidth + pad > window.innerWidth) x = window.innerWidth - menuWidth - pad;
+    if (x < pad) x = pad;
+    if (y + menuHeight + pad > window.innerHeight) y = window.innerHeight - menuHeight - pad;
+    if (y < pad) y = pad;
+
+    menu.style.left = `${x}px`;
+    menu.style.top = `${y}px`;
+  },
 
     closeCardMenu() {
         document.getElementById('cardMenu').classList.remove('active');
